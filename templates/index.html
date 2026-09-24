@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EduGenie | AI Learning Assistant</title>
+
+    <link rel="stylesheet" href="/static/style.css?v=10">
+</head>
+
+<body>
+
+    <!-- Background decoration -->
+    <div class="bg-circle circle-one"></div>
+    <div class="bg-circle circle-two"></div>
+
+    <main class="page">
+
+        <!-- HEADER -->
+        <header class="hero">
+
+            <div class="logo">
+                <span class="logo-icon">🤖</span>
+                <span>EduGenie</span>
+            </div>
+
+            <div class="badge">
+                ✨ AI Powered Learning
+            </div>
+
+            <h1>
+                Learn smarter.
+                <span>Learn faster.</span>
+            </h1>
+
+            <p class="hero-text">
+                Your personal AI tutor for questions, explanations,
+                quizzes, summaries and learning plans.
+            </p>
+
+        </header>
+
+
+        <!-- MAIN CARD -->
+        <section class="workspace">
+
+            <div class="workspace-header">
+
+                <div>
+                    <p class="small-label">YOUR LEARNING SPACE</p>
+                    <h2>What would you like to learn?</h2>
+                </div>
+
+                <div class="status">
+                    <span class="status-dot"></span>
+                    AI Ready
+                </div>
+
+            </div>
+
+
+            <!-- TASK -->
+            <div class="field">
+
+                <label for="task">
+                    🎯 Choose a task
+                </label>
+
+                <select id="task">
+
+                    <option value="qa">
+                        💬 Ask a Question
+                    </option>
+
+                    <option value="explain">
+                        📚 Explain a Topic
+                    </option>
+
+                    <option value="quiz">
+                        🧠 Generate Quiz
+                    </option>
+
+                    <option value="summarize">
+                        📝 Summarize Text
+                    </option>
+
+                    <option value="learning">
+                        🗺️ Learning Recommendations
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- INPUT -->
+            <div class="field">
+
+                <div class="label-row">
+
+                    <label for="inputText">
+                        ✏️ Your question or topic
+                    </label>
+
+                    <span id="charCount">
+                        0 characters
+                    </span>
+
+                </div>
+
+                <textarea
+                    id="inputText"
+                    placeholder="Try: What is Python and why is it useful?"
+                    maxlength="5000"
+                ></textarea>
+
+            </div>
+
+
+            <!-- OPTIONS -->
+            <div class="options-grid">
+
+                <div class="field">
+
+                    <label for="level">
+                        🎓 Student Level
+                    </label>
+
+                    <select id="level">
+
+                        <option value="beginner">
+                            🌱 Beginner
+                        </option>
+
+                        <option value="intermediate">
+                            🚀 Intermediate
+                        </option>
+
+                        <option value="advanced">
+                            🔥 Advanced
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="tip-box">
+                    💡 <strong>Tip</strong>
+                    <br>
+                    Ask clear questions for better answers.
+                </div>
+
+            </div>
+
+
+            <!-- GENERATE BUTTON -->
+            <button
+                type="button"
+                id="generateBtn"
+                class="generate-btn"
+            >
+
+                <span id="buttonIcon">✨</span>
+
+                <span id="buttonText">
+                    Generate Answer
+                </span>
+
+            </button>
+
+
+            <!-- RESULT -->
+            <div class="result-section">
+
+                <div class="result-heading">
+
+                    <div>
+                        <p class="small-label">
+                            AI RESPONSE
+                        </p>
+
+                        <h2>✨ EduGenie Answer</h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="copyBtn"
+                        class="copy-btn"
+                        hidden
+                    >
+                        📋 Copy
+                    </button>
+
+                </div>
+
+
+                <div id="output" class="result-box">
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            🧠
+                        </div>
+
+                        <h3>
+                            Ready to help you learn
+                        </h3>
+
+                        <p>
+                            Enter a question above and
+                            click Generate Answer.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FEATURES -->
+        <section class="features">
+
+            <div class="feature-card">
+                <div>💬</div>
+                <h3>Ask Anything</h3>
+                <p>Get clear answers to your questions.</p>
+            </div>
+
+            <div class="feature-card">
+                <div>🧠</div>
+                <h3>Smart Quiz</h3>
+                <p>Practice with AI generated questions.</p>
+            </div>
+
+            <div class="feature-card">
+                <div>🗺️</div>
+                <h3>Learning Path</h3>
+                <p>Build your personalized study journey.</p>
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer>
+            <p>
+                Made with ❤️ using FastAPI + Google Gemini
+            </p>
+        </footer>
+
+    </main>
+
+
+    <script src="/static/app.js?v=10"></script>
+
+</body>
+
+</html>
