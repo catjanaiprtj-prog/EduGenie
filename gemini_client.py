@@ -1,413 +1,604 @@
-import json
-
-from google import genai
-from google.genai import types
-from google.genai.errors import ServerError
-
-from config import GEMINI_API_KEY, GEMINI_MODEL
-
-
-def get_client():
-
-    if not GEMINI_API_KEY:
-        return None
-
-    return genai.Client(
-        api_key=GEMINI_API_KEY
-    )
-
-
-def generate_text(
-    prompt: str,
-    temperature: float = 0.4
-) -> str:
-
-    client = get_client()
-
-    if client is None:
-        return demo_text_response(prompt)
-
-    try:
-
-        print("Gemini request started...")
-        print("Model:", GEMINI_MODEL)
-
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=temperature
-            )
-        )
-
-        if response.text:
-
-            print("Gemini response received.")
-
-            return response.text
-
-        return demo_text_response(prompt)
-
-    except ServerError as exc:
-
-        print("Gemini Server Error:", exc)
-        print("Using EduGenie demo response.")
-
-        return demo_text_response(prompt)
-
-    except Exception as exc:
-
-        print("Gemini Error:", exc)
-        print("Using EduGenie demo response.")
-
-        return demo_text_response(prompt)
-
-
-def generate_structured(
-    prompt: str,
-    response_schema=None
-) -> str:
-
-    client = get_client()
-
-    if client is None:
-        return demo_structured_response(prompt)
-
-    try:
-
-        print("Gemini structured request started...")
-        print("Model:", GEMINI_MODEL)
-
-        config_kwargs = {
-            "temperature": 0.3,
-            "response_mime_type": "application/json"
-        }
-
-        if response_schema is not None:
-
-            config_kwargs["response_schema"] = (
-                response_schema
-            )
-
-        response = client.models.generate_content(
-
-            model=GEMINI_MODEL,
-
-            contents=prompt,
-
-            config=types.GenerateContentConfig(
-                **config_kwargs
-            )
-
-        )
-
-        if response.text:
-
-            print("Gemini structured response received.")
-
-            return response.text
-
-        return demo_structured_response(prompt)
-
-    except Exception as exc:
-
-        print("Gemini Structured Error:", exc)
-        print("Using EduGenie demo structured response.")
-
-        return demo_structured_response(prompt)
-
-
-def generate_json(prompt: str) -> str:
-
-    return generate_structured(
-        prompt,
-        None
-    )
-
-
-def demo_text_response(prompt: str) -> str:
-
-    prompt_lower = prompt.lower()
-
-    if "python" in prompt_lower:
-
-        return """
-Python is a high-level programming language known for its
-simple and readable syntax.
-
-It is widely used for:
-
-• Web development
-• Data analysis
-• Artificial Intelligence
-• Machine Learning
-• Automation
-
-Example:
-
-print("Hello World")
-
-This Python program displays Hello World on the screen.
-
-In simple words, Python helps us give instructions to a
-computer using easy-to-understand code.
-"""
-
-
-    if "machine learning" in prompt_lower:
-
-        return """
-Machine Learning is a branch of Artificial Intelligence.
-
-It allows computers to learn patterns from data and make
-predictions or decisions without being explicitly programmed
-for every situation.
-
-Example:
-
-An email system can learn from previous emails and identify
-whether a new email is spam or not spam.
-
-In simple words:
-
-Data → Learning → Prediction
-"""
-
-
-    if "artificial intelligence" in prompt_lower:
-
-        return """
-Artificial Intelligence, or AI, is the field of creating
-computer systems that can perform tasks that normally require
-human intelligence.
-
-Examples include:
-
-• Understanding language
-• Recognizing images
-• Making predictions
-• Answering questions
-• Recommending content
-
-Chatbots are one example of AI applications.
-"""
-
-
-    return """
-EduGenie Demo Response
-
-Your EduGenie application is working correctly.
-
-Gemini AI is temporarily unavailable, so EduGenie is using
-its safe demonstration mode.
-
-You can still test the application features including:
-
-• Question & Answer
-• Topic Explanation
-• Quiz Generation
-• Text Summarization
-• Learning Recommendations
-
-Once Gemini becomes available, the application can use the
-Gemini-generated response automatically.
-"""
-
-
 def demo_structured_response(prompt: str) -> str:
+    """
+    Fallback structured response when Gemini is unavailable.
+    Generates a quiz based on the requested topic.
+    """
 
-    prompt_lower = prompt.lower()
+    import json
+    import re
 
+    # Get topic from the prompt
+    topic = "General Programming"
 
-    # ==========================================
-    # QUIZ
-    # ==========================================
+    topic_match = re.search(
+        r"Topic:\s*(.+?)(?:\n|$)",
+        prompt,
+        re.IGNORECASE
+    )
 
-    if (
-        "quiz" in prompt_lower
-        or "multiple-choice" in prompt_lower
-    ):
+    if topic_match:
+        topic = topic_match.group(1).strip()
 
-        return json.dumps({
+    if not topic:
+        topic = "General Programming"
 
-            "title": "Python Practice Quiz",
+    topic_lower = topic.lower()
 
-            "questions": [
+    # =========================================================
+    # JAVA
+    # =========================================================
+    if "java" in topic_lower and "javascript" not in topic_lower:
 
-                {
-                    "question": "What is Python?",
-
-                    "options": [
-                        "A programming language",
-                        "A web browser",
-                        "An operating system",
-                        "A database"
-                    ],
-
-                    "answer":
-                        "A programming language",
-
-                    "explanation":
-                        "Python is a popular high-level programming language."
-                },
-
-                {
-                    "question":
-                        "Which symbol starts a comment in Python?",
-
-                    "options": [
-                        "#",
-                        "//",
-                        "/* */",
-                        "<!-- -->"
-                    ],
-
-                    "answer": "#",
-
-                    "explanation":
-                        "Python uses # for single-line comments."
-                },
-
-                {
-                    "question":
-                        "Which function displays output in Python?",
-
-                    "options": [
-                        "print()",
-                        "display()",
-                        "show()",
-                        "output()"
-                    ],
-
-                    "answer": "print()",
-
-                    "explanation":
-                        "The print() function displays output."
-                },
-
-                {
-                    "question":
-                        "Which value represents a Boolean?",
-
-                    "options": [
-                        "True",
-                        "Hello",
-                        "25",
-                        "[1, 2, 3]"
-                    ],
-
-                    "answer": "True",
-
-                    "explanation":
-                        "True and False are Boolean values."
-                },
-
-                {
-                    "question":
-                        "Which keyword defines a function in Python?",
-
-                    "options": [
-                        "def",
-                        "function",
-                        "fun",
-                        "define"
-                    ],
-
-                    "answer": "def",
-
-                    "explanation":
-                        "The def keyword is used to define a function."
-                }
-
-            ]
-
-        })
-
-
-    # ==========================================
-    # LEARNING PATH
-    # ==========================================
-
-    return json.dumps({
-
-        "title": "Personalized Learning Path",
-
-        "overview":
-            "A simple step-by-step learning journey.",
-
-        "weeks": [
-
+        questions = [
             {
-                "week": 1,
-                "topic": "Fundamentals",
-                "goals": [
-                    "Understand the basic concepts",
-                    "Learn important terminology"
+                "question": "Which keyword is used to define a class in Java?",
+                "options": [
+                    "class",
+                    "struct",
+                    "define",
+                    "object"
                 ],
-                "activities": [
-                    "Read beginner material",
-                    "Practice basic examples"
-                ],
-                "resource_types": [
-                    "textbook",
-                    "video",
-                    "practice"
-                ]
+                "answer": "class",
+                "explanation": "The class keyword is used to define a class in Java."
             },
-
             {
-                "week": 2,
-                "topic": "Core Concepts",
-                "goals": [
-                    "Understand important concepts",
-                    "Solve simple problems"
+                "question": "Which method is the entry point of a Java application?",
+                "options": [
+                    "start()",
+                    "main()",
+                    "run()",
+                    "execute()"
                 ],
-                "activities": [
-                    "Practice examples",
-                    "Complete exercises"
-                ],
-                "resource_types": [
-                    "documentation",
-                    "practice",
-                    "quiz"
-                ]
+                "answer": "main()",
+                "explanation": "The main() method is the usual entry point of a Java application."
             },
-
             {
-                "week": 3,
-                "topic": "Practical Application",
-                "goals": [
-                    "Apply the concepts",
-                    "Build a small project"
+                "question": "Which symbol ends most Java statements?",
+                "options": [
+                    ".",
+                    ";",
+                    ":",
+                    ","
                 ],
-                "activities": [
-                    "Create a mini project",
-                    "Practice problem solving"
-                ],
-                "resource_types": [
-                    "project",
-                    "practice"
-                ]
+                "answer": ";",
+                "explanation": "Most Java statements end with a semicolon."
             },
-
             {
-                "week": 4,
-                "topic": "Revision and Project",
-                "goals": [
-                    "Review important concepts",
-                    "Complete a final project"
+                "question": "Which keyword is used to create an object in Java?",
+                "options": [
+                    "new",
+                    "create",
+                    "object",
+                    "make"
                 ],
-                "activities": [
-                    "Take a quiz",
-                    "Build a final mini project"
+                "answer": "new",
+                "explanation": "The new keyword is used to create an object."
+            },
+            {
+                "question": "Which Java data type stores true or false?",
+                "options": [
+                    "boolean",
+                    "bool",
+                    "bit",
+                    "logical"
                 ],
-                "resource_types": [
-                    "quiz",
-                    "project",
-                    "article"
-                ]
+                "answer": "boolean",
+                "explanation": "boolean stores true or false values in Java."
             }
-
         ]
 
+    # =========================================================
+    # JAVASCRIPT
+    # =========================================================
+    elif "javascript" in topic_lower:
+
+        questions = [
+            {
+                "question": "Which keyword can be used to declare a variable in JavaScript?",
+                "options": [
+                    "let",
+                    "define",
+                    "variable",
+                    "declare"
+                ],
+                "answer": "let",
+                "explanation": "let is used to declare a block-scoped variable."
+            },
+            {
+                "question": "Which symbol starts a single-line comment in JavaScript?",
+                "options": [
+                    "//",
+                    "#",
+                    "<!--",
+                    "**"
+                ],
+                "answer": "//",
+                "explanation": "// starts a single-line comment in JavaScript."
+            },
+            {
+                "question": "Which method prints output to the browser console?",
+                "options": [
+                    "console.log()",
+                    "print()",
+                    "echo()",
+                    "display()"
+                ],
+                "answer": "console.log()",
+                "explanation": "console.log() is commonly used to print messages to the console."
+            },
+            {
+                "question": "Which keyword declares a constant in JavaScript?",
+                "options": [
+                    "const",
+                    "constant",
+                    "fixed",
+                    "static"
+                ],
+                "answer": "const",
+                "explanation": "const declares a variable that cannot be reassigned."
+            },
+            {
+                "question": "Which file extension is commonly used for JavaScript?",
+                "options": [
+                    ".js",
+                    ".java",
+                    ".script",
+                    ".javascript"
+                ],
+                "answer": ".js",
+                "explanation": "JavaScript source files commonly use the .js extension."
+            }
+        ]
+
+    # =========================================================
+    # C++
+    # =========================================================
+    elif "c++" in topic_lower or "cpp" in topic_lower:
+
+        questions = [
+            {
+                "question": "Which function is the usual entry point of a C++ program?",
+                "options": [
+                    "start()",
+                    "main()",
+                    "run()",
+                    "begin()"
+                ],
+                "answer": "main()",
+                "explanation": "A standard C++ program normally begins execution from main()."
+            },
+            {
+                "question": "Which symbol ends most C++ statements?",
+                "options": [
+                    ";",
+                    ".",
+                    ":",
+                    ","
+                ],
+                "answer": ";",
+                "explanation": "Most C++ statements end with a semicolon."
+            },
+            {
+                "question": "Which header provides standard input and output streams in C++?",
+                "options": [
+                    "<iostream>",
+                    "<stdio>",
+                    "<input>",
+                    "<stream>"
+                ],
+                "answer": "<iostream>",
+                "explanation": "<iostream> provides C++ input and output stream functionality."
+            },
+            {
+                "question": "Which operator is used with cout to output data?",
+                "options": [
+                    ">>",
+                    "<<",
+                    "==",
+                    "&&"
+                ],
+                "answer": "<<",
+                "explanation": "The << operator inserts data into an output stream such as cout."
+            },
+            {
+                "question": "Which keyword is used to define a class in C++?",
+                "options": [
+                    "class",
+                    "object",
+                    "define",
+                    "type"
+                ],
+                "answer": "class",
+                "explanation": "The class keyword is used to define a class."
+            }
+        ]
+
+    # =========================================================
+    # C
+    # =========================================================
+    elif topic_lower == "c" or "c programming" in topic_lower:
+
+        questions = [
+            {
+                "question": "Which function is the usual entry point of a C program?",
+                "options": [
+                    "start()",
+                    "main()",
+                    "run()",
+                    "begin()"
+                ],
+                "answer": "main()",
+                "explanation": "Execution of a C program normally begins with main()."
+            },
+            {
+                "question": "Which symbol ends most C statements?",
+                "options": [
+                    ";",
+                    ".",
+                    ":",
+                    ","
+                ],
+                "answer": ";",
+                "explanation": "Most C statements end with a semicolon."
+            },
+            {
+                "question": "Which function is commonly used to print output in C?",
+                "options": [
+                    "printf()",
+                    "print()",
+                    "console.log()",
+                    "display()"
+                ],
+                "answer": "printf()",
+                "explanation": "printf() is commonly used for formatted output in C."
+            },
+            {
+                "question": "Which header is commonly used with printf()?",
+                "options": [
+                    "<stdio.h>",
+                    "<iostream>",
+                    "<string>",
+                    "<output.h>"
+                ],
+                "answer": "<stdio.h>",
+                "explanation": "<stdio.h> declares standard input and output functions."
+            },
+            {
+                "question": "Which operator gets the address of a variable in C?",
+                "options": [
+                    "&",
+                    "*",
+                    "#",
+                    "%"
+                ],
+                "answer": "&",
+                "explanation": "The & operator is the address-of operator."
+            }
+        ]
+
+    # =========================================================
+    # PYTHON
+    # =========================================================
+    elif "python" in topic_lower:
+
+        questions = [
+            {
+                "question": "Which keyword is used to define a function in Python?",
+                "options": [
+                    "def",
+                    "function",
+                    "func",
+                    "define"
+                ],
+                "answer": "def",
+                "explanation": "The def keyword is used to define a function."
+            },
+            {
+                "question": "Which symbol starts a single-line comment in Python?",
+                "options": [
+                    "#",
+                    "//",
+                    "--",
+                    "/*"
+                ],
+                "answer": "#",
+                "explanation": "Python uses # for single-line comments."
+            },
+            {
+                "question": "Which function displays output in Python?",
+                "options": [
+                    "print()",
+                    "display()",
+                    "echo()",
+                    "show()"
+                ],
+                "answer": "print()",
+                "explanation": "The print() function displays output."
+            },
+            {
+                "question": "Which of these is a Boolean value in Python?",
+                "options": [
+                    "True",
+                    "TRUE_VALUE",
+                    "Yes",
+                    "Boolean"
+                ],
+                "answer": "True",
+                "explanation": "True and False are Python Boolean values."
+            },
+            {
+                "question": "Which extension is commonly used for Python files?",
+                "options": [
+                    ".py",
+                    ".python",
+                    ".pt",
+                    ".p"
+                ],
+                "answer": ".py",
+                "explanation": "Python source files commonly use the .py extension."
+            }
+        ]
+
+    # =========================================================
+    # HTML
+    # =========================================================
+    elif "html" in topic_lower:
+
+        questions = [
+            {
+                "question": "What does HTML stand for?",
+                "options": [
+                    "HyperText Markup Language",
+                    "HighText Machine Language",
+                    "Hyperlink Text Management Language",
+                    "Home Tool Markup Language"
+                ],
+                "answer": "HyperText Markup Language",
+                "explanation": "HTML stands for HyperText Markup Language."
+            },
+            {
+                "question": "Which tag creates the largest heading in HTML?",
+                "options": [
+                    "<h1>",
+                    "<h6>",
+                    "<heading>",
+                    "<head>"
+                ],
+                "answer": "<h1>",
+                "explanation": "<h1> represents the highest-level heading."
+            },
+            {
+                "question": "Which HTML tag creates a hyperlink?",
+                "options": [
+                    "<a>",
+                    "<link>",
+                    "<href>",
+                    "<url>"
+                ],
+                "answer": "<a>",
+                "explanation": "The <a> tag is used to create hyperlinks."
+            },
+            {
+                "question": "Which HTML tag displays an image?",
+                "options": [
+                    "<img>",
+                    "<image>",
+                    "<picture>",
+                    "<src>"
+                ],
+                "answer": "<img>",
+                "explanation": "The <img> element embeds an image."
+            },
+            {
+                "question": "Which declaration specifies HTML5?",
+                "options": [
+                    "<!DOCTYPE html>",
+                    "<HTML5>",
+                    "<DOCTYPE HTML5>",
+                    "<html5>"
+                ],
+                "answer": "<!DOCTYPE html>",
+                "explanation": "<!DOCTYPE html> declares an HTML5 document."
+            }
+        ]
+
+    # =========================================================
+    # SQL
+    # =========================================================
+    elif "sql" in topic_lower:
+
+        questions = [
+            {
+                "question": "Which SQL command retrieves data from a table?",
+                "options": [
+                    "SELECT",
+                    "GET",
+                    "FETCH",
+                    "READ"
+                ],
+                "answer": "SELECT",
+                "explanation": "SELECT is used to retrieve data from a database."
+            },
+            {
+                "question": "Which SQL command adds new rows?",
+                "options": [
+                    "INSERT",
+                    "ADD",
+                    "CREATE",
+                    "APPEND"
+                ],
+                "answer": "INSERT",
+                "explanation": "INSERT adds new rows to a table."
+            },
+            {
+                "question": "Which clause filters rows?",
+                "options": [
+                    "WHERE",
+                    "FILTER",
+                    "CHECK",
+                    "HAVINGONLY"
+                ],
+                "answer": "WHERE",
+                "explanation": "WHERE filters rows according to a condition."
+            },
+            {
+                "question": "Which command modifies existing rows?",
+                "options": [
+                    "UPDATE",
+                    "CHANGE",
+                    "MODIFY",
+                    "EDIT"
+                ],
+                "answer": "UPDATE",
+                "explanation": "UPDATE modifies existing records."
+            },
+            {
+                "question": "Which command removes rows from a table?",
+                "options": [
+                    "DELETE",
+                    "REMOVE",
+                    "CLEAR",
+                    "ERASE"
+                ],
+                "answer": "DELETE",
+                "explanation": "DELETE removes rows from a table."
+            }
+        ]
+
+    # =========================================================
+    # AI / ARTIFICIAL INTELLIGENCE
+    # =========================================================
+    elif (
+        topic_lower == "ai"
+        or "artificial intelligence" in topic_lower
+        or "machine learning" in topic_lower
+    ):
+
+        questions = [
+            {
+                "question": "What is a primary goal of Artificial Intelligence?",
+                "options": [
+                    "Enable machines to perform tasks requiring human-like intelligence",
+                    "Only store files",
+                    "Only increase internet speed",
+                    "Only design hardware"
+                ],
+                "answer": "Enable machines to perform tasks requiring human-like intelligence",
+                "explanation": "AI focuses on systems performing tasks associated with intelligent behavior."
+            },
+            {
+                "question": "Which field is a major area of Artificial Intelligence?",
+                "options": [
+                    "Machine Learning",
+                    "Word Processing",
+                    "Disk Formatting",
+                    "File Compression"
+                ],
+                "answer": "Machine Learning",
+                "explanation": "Machine Learning is a major area of AI."
+            },
+            {
+                "question": "What does a machine learning model learn from?",
+                "options": [
+                    "Data",
+                    "Only electricity",
+                    "Only screen pixels",
+                    "Only keyboard input"
+                ],
+                "answer": "Data",
+                "explanation": "Machine learning models learn patterns from data."
+            },
+            {
+                "question": "Which field focuses on understanding human language?",
+                "options": [
+                    "Natural Language Processing",
+                    "Disk Partitioning",
+                    "File Compression",
+                    "Hardware Design"
+                ],
+                "answer": "Natural Language Processing",
+                "explanation": "Natural Language Processing deals with human language."
+            },
+            {
+                "question": "What is model training in machine learning?",
+                "options": [
+                    "Learning patterns from data",
+                    "Deleting data",
+                    "Formatting a disk",
+                    "Installing an operating system"
+                ],
+                "answer": "Learning patterns from data",
+                "explanation": "Training allows a model to learn patterns from data."
+            }
+        ]
+
+    # =========================================================
+    # GENERIC TOPIC
+    # =========================================================
+    else:
+
+        questions = [
+            {
+                "question": f"What is an important part of learning {topic}?",
+                "options": [
+                    f"Understanding the concepts of {topic}",
+                    "Ignoring the subject",
+                    "Avoiding practice",
+                    "Deleting learning materials"
+                ],
+                "answer": f"Understanding the concepts of {topic}",
+                "explanation": f"Understanding the concepts is important when learning {topic}."
+            },
+            {
+                "question": f"Which activity can improve knowledge of {topic}?",
+                "options": [
+                    f"Practicing {topic}",
+                    "Avoiding examples",
+                    "Skipping concepts",
+                    "Ignoring feedback"
+                ],
+                "answer": f"Practicing {topic}",
+                "explanation": f"Practice helps improve knowledge of {topic}."
+            },
+            {
+                "question": f"What can help a learner understand {topic} better?",
+                "options": [
+                    "Examples and practice",
+                    "No practice",
+                    "Skipping explanations",
+                    "Avoiding questions"
+                ],
+                "answer": "Examples and practice",
+                "explanation": "Examples and practice help learners understand a subject."
+            },
+            {
+                "question": f"Which approach is useful when studying {topic}?",
+                "options": [
+                    "Learn concepts and apply them",
+                    "Memorize without understanding",
+                    "Avoid practical work",
+                    "Skip the basics"
+                ],
+                "answer": "Learn concepts and apply them",
+                "explanation": "Learning concepts and applying them helps develop understanding."
+            },
+            {
+                "question": f"Why can quizzes be useful when learning {topic}?",
+                "options": [
+                    "They check understanding",
+                    "They remove the need to study",
+                    "They prevent practice",
+                    "They replace every explanation"
+                ],
+                "answer": "They check understanding",
+                "explanation": "Quizzes can help check understanding."
+            }
+        ]
+
+    # =========================================================
+    # FINAL JSON RESPONSE
+    # =========================================================
+    return json.dumps({
+        "title": f"{topic} Practice Quiz",
+        "questions": questions
     })

@@ -1,5 +1,4 @@
 import json
-
 from gemini_client import generate_structured
 
 
@@ -8,77 +7,86 @@ def generate_quiz(
     number_of_questions: int = 5,
     level: str = "beginner"
 ):
+    topic = topic.strip()
 
     prompt = f"""
 Create an educational multiple-choice quiz.
 
-Topic:
+IMPORTANT:
+The quiz MUST be ONLY about the exact topic provided below.
+
+EXACT USER TOPIC:
 {topic}
 
-Student level:
+STUDENT LEVEL:
 {level}
 
-Number of questions:
+NUMBER OF QUESTIONS:
 {number_of_questions}
+
+STRICT RULES:
+1. Every question must be directly related to "{topic}".
+2. Do NOT change the topic.
+3. Do NOT replace the topic with Python.
+4. Do NOT replace the topic with Java.
+5. Do NOT replace the topic with AI.
+6. If the topic is Java, create Java questions.
+7. If the topic is Python, create Python questions.
+8. If the topic is C, create C questions.
+9. If the topic is C++, create C++ questions.
+10. If the topic is JavaScript, create JavaScript questions.
+11. If the topic is SQL, create SQL questions.
+12. If the topic is HTML, create HTML questions.
+13. If the topic is CSS, create CSS questions.
+14. If the topic is AI, create Artificial Intelligence questions.
+15. For any other programming language, create questions specifically about that language.
+16. Never use unrelated programming languages.
+17. Generate exactly {number_of_questions} questions.
+18. Each question must have exactly 4 options.
+19. The answer must exactly match one of the options.
+20. Include a short explanation for every answer.
 
 Return valid JSON only.
 
-Each question must contain:
+JSON format:
 
-question
-options
-answer
-explanation
-
-Each question must have exactly four options.
-The answer must match one of the options.
+{{
+    "title": "{topic} Practice Quiz",
+    "questions": [
+        {{
+            "question": "Question here",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": "Correct option",
+            "explanation": "Short explanation"
+        }}
+    ]
+}}
 """
 
     try:
-
         json_text = generate_structured(
             prompt,
             None
         )
 
-        data = json.loads(
-            json_text
-        )
+        data = json.loads(json_text)
 
-        questions = data.get(
-            "questions",
-            []
-        )
+        questions = data.get("questions", [])
 
         if not questions:
-
-            raise ValueError(
-                "No quiz questions returned."
-            )
-
-
-        # Make sure requested number exists
-
-        questions = questions[
-            :number_of_questions
-        ]
-
-
-        # Validate each question
+            raise ValueError("No quiz questions returned.")
 
         valid_questions = []
 
-        for question in questions:
+        for question in questions[:number_of_questions]:
 
-            options = question.get(
-                "options",
-                []
-            )
-
-            answer = question.get(
-                "answer",
-                ""
-            )
+            options = question.get("options", [])
+            answer = question.get("answer", "")
 
             if len(options) != 4:
                 continue
@@ -87,160 +95,40 @@ The answer must match one of the options.
                 continue
 
             valid_questions.append({
-
-                "question":
-                    question.get(
-                        "question",
-                        "Question"
-                    ),
-
-                "options":
-                    options,
-
-                "answer":
-                    answer,
-
-                "explanation":
-                    question.get(
-                        "explanation",
-                        ""
-                    )
-
+                "question": question.get(
+                    "question",
+                    "Question"
+                ),
+                "options": options,
+                "answer": answer,
+                "explanation": question.get(
+                    "explanation",
+                    ""
+                )
             })
 
-
         if not valid_questions:
-
             raise ValueError(
                 "Quiz response was invalid."
             )
 
-
         return {
-
-            "title":
-                data.get(
-                    "title",
-                    f"{topic.title()} Quiz"
-                ),
-
-            "questions":
-                valid_questions
-
+            "title": data.get(
+                "title",
+                f"{topic.title()} Practice Quiz"
+            ),
+            "questions": valid_questions
         }
-
 
     except Exception as exc:
 
-        print(
-            "Quiz error:",
-            exc
+        print("Quiz error:", exc)
+
+        # Do NOT return a Python quiz here.
+        # Returning a Python fallback was causing
+        # AI / Java / C++ topics to show Python questions.
+
+        raise ValueError(
+            f"Unable to generate a quiz for '{topic}'. "
+            "Please try again."
         )
-
-        # Safe fallback
-
-        fallback = [
-
-            {
-                "question":
-                    "What is Python?",
-
-                "options": [
-                    "A programming language",
-                    "A web browser",
-                    "An operating system",
-                    "A database"
-                ],
-
-                "answer":
-                    "A programming language",
-
-                "explanation":
-                    "Python is a programming language."
-            },
-
-            {
-                "question":
-                    "Which symbol starts a Python comment?",
-
-                "options": [
-                    "#",
-                    "//",
-                    "/* */",
-                    "<!-- -->"
-                ],
-
-                "answer":
-                    "#",
-
-                "explanation":
-                    "Python uses # for comments."
-            },
-
-            {
-                "question":
-                    "Which function prints output?",
-
-                "options": [
-                    "print()",
-                    "show()",
-                    "display()",
-                    "output()"
-                ],
-
-                "answer":
-                    "print()",
-
-                "explanation":
-                    "print() displays output."
-            },
-
-            {
-                "question":
-                    "Which is a Boolean value?",
-
-                "options": [
-                    "True",
-                    "Python",
-                    "100",
-                    "Hello"
-                ],
-
-                "answer":
-                    "True",
-
-                "explanation":
-                    "True is a Boolean value."
-            },
-
-            {
-                "question":
-                    "Which keyword defines a function?",
-
-                "options": [
-                    "def",
-                    "function",
-                    "fun",
-                    "define"
-                ],
-
-                "answer":
-                    "def",
-
-                "explanation":
-                    "def is used to define functions."
-            }
-
-        ]
-
-        return {
-
-            "title":
-                f"{topic.title()} - Practice Quiz",
-
-            "questions":
-                fallback[
-                    :number_of_questions
-                ]
-
-        }
