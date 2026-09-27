@@ -1,3 +1,96 @@
+import json
+import os
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+try:
+    from google import genai
+except ImportError:
+    genai = None
+
+
+_client = None
+
+
+def get_client():
+    global _client
+
+    if _client is not None:
+        return _client
+
+    api_key = os.getenv("GEMINI_API_KEY")
+
+    if not api_key:
+        raise RuntimeError(
+            "GEMINI_API_KEY is not configured."
+        )
+
+    if genai is None:
+        raise RuntimeError(
+            "Google GenAI package is not installed."
+        )
+
+    _client = genai.Client(api_key=api_key)
+    return _client
+
+
+def generate_text(prompt: str) -> str:
+    client = get_client()
+
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+    response = client.models.generate_content(
+        model=model,
+        contents=prompt
+    )
+
+    if not response or not response.text:
+        raise RuntimeError(
+            "Gemini returned an empty response."
+        )
+
+    return response.text.strip()
+
+
+def generate_structured(prompt: str, schema=None) -> str:
+    try:
+        client = get_client()
+
+        model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+        response = client.models.generate_content(
+            model=model,
+            contents=prompt
+        )
+
+        if not response or not response.text:
+            raise RuntimeError(
+                "Gemini returned an empty response."
+            )
+
+        text = response.text.strip()
+
+        if text.startswith("```json"):
+            text = text[len("```json"):].strip()
+
+        elif text.startswith("```"):
+            text = text[len("```"):].strip()
+
+        if text.endswith("```"):
+            text = text[:-3].strip()
+
+        json.loads(text)
+        return text
+
+    except Exception as exc:
+        print("Gemini structured response error:", exc)
+        return demo_structured_response(prompt)
+
+
 def demo_structured_response(prompt: str) -> str:
     """
     Fallback structured response when Gemini is unavailable.
