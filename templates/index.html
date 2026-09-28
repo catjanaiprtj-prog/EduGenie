@@ -4,322 +4,612 @@
 <head>
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <title>EduGenie | AI Learning Assistant</title>
+    <title>EduGenie | AI Programming Tutor</title>
 
-    <link
-        rel="stylesheet"
-        href="/static/style.css?v=10"
-    >
+    <link rel="stylesheet"
+          href="/static/style.css">
 </head>
 
 <body>
 
-    <!-- Background -->
-    <div class="background">
-        <div class="blob blob-one"></div>
-        <div class="blob blob-two"></div>
-        <div class="blob blob-three"></div>
-    </div>
+    <!-- ================= HEADER ================= -->
 
+    <header class="top-header">
 
-    <!-- Header -->
-    <header class="header">
-
-        <div class="logo">
-            <div class="logo-icon">🎓</div>
+        <div class="brand">
+            <div class="brand-icon">🎓</div>
 
             <div>
                 <h1>EduGenie</h1>
-                <span>Smart Learning Assistant</span>
+                <p>AI Programming Learning Assistant</p>
             </div>
         </div>
 
         <div class="status">
             <span class="status-dot"></span>
-            Ready to Learn
+            Online
         </div>
 
     </header>
 
 
-    <!-- Main -->
+    <!-- ================= HERO ================= -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <span class="hero-badge">
+                ✨ Smart Programming Tutor
+            </span>
+
+            <h2>
+                Learn Programming
+                <span>Smarter & Faster</span>
+            </h2>
+
+            <p>
+                Ask questions, learn concepts, generate quizzes
+                and build your programming skills with EduGenie.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= MAIN ================= -->
+
     <main class="container">
 
-        <!-- Hero -->
-        <section class="hero">
 
-            <div class="hero-content">
+        <!-- ================= LANGUAGE CARD ================= -->
 
-                <span class="badge">
-                    🚀 Learn • Practice • Grow
-                </span>
+        <section class="language-card">
 
-                <h2>
-                    Your Personal
-                    <span>Programming</span>
-                    Learning Assistant
-                </h2>
+            <div class="section-title">
 
-                <p>
-                    Learn programming concepts, ask questions,
-                    explore topics and practice quizzes
-                    in one beautiful learning platform.
-                </p>
+                <div class="title-icon">
+                    💻
+                </div>
+
+                <div>
+                    <h2>Choose Your Programming Language</h2>
+
+                    <p>
+                        Select any language and ask your question.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="language">
+                        Programming Language
+                    </label>
+
+                    <select id="language">
+
+                        <option value="Python">
+                            🐍 Python
+                        </option>
+
+                        <option value="Java">
+                            ☕ Java
+                        </option>
+
+                        <option value="C">
+                            🔵 C
+                        </option>
+
+                        <option value="C++">
+                            ⚡ C++
+                        </option>
+
+                        <option value="JavaScript">
+                            🟨 JavaScript
+                        </option>
+
+                        <option value="TypeScript">
+                            🔷 TypeScript
+                        </option>
+
+                        <option value="HTML">
+                            🌐 HTML
+                        </option>
+
+                        <option value="CSS">
+                            🎨 CSS
+                        </option>
+
+                        <option value="SQL">
+                            🗄️ SQL
+                        </option>
+
+                        <option value="C#">
+                            🟣 C#
+                        </option>
+
+                        <option value="PHP">
+                            🐘 PHP
+                        </option>
+
+                        <option value="Go">
+                            🐹 Go
+                        </option>
+
+                        <option value="Rust">
+                            🦀 Rust
+                        </option>
+
+                        <option value="Kotlin">
+                            🟠 Kotlin
+                        </option>
+
+                        <option value="Swift">
+                            🍎 Swift
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="difficulty">
+                        Difficulty Level
+                    </label>
+
+                    <select id="difficulty">
+
+                        <option value="Beginner">
+                            🌱 Beginner
+                        </option>
+
+                        <option value="Intermediate">
+                            🚀 Intermediate
+                        </option>
+
+                        <option value="Advanced">
+                            🔥 Advanced
+                        </option>
+
+                    </select>
+
+                </div>
 
             </div>
 
         </section>
 
 
-        <!-- Controls -->
-        <section class="control-card">
+        <!-- ================= FEATURES ================= -->
 
-            <div class="control-group">
+        <section class="features-section">
 
-                <label>
-                    💻 Programming Language
-                </label>
+            <div class="section-heading">
 
-                <select id="language">
+                <span>🚀</span>
 
-                    <option value="Python">
-                        Python
-                    </option>
+                <div>
+                    <h2>What do you want to learn?</h2>
 
-                    <option value="Java">
-                        Java
-                    </option>
-
-                    <option value="C">
-                        C
-                    </option>
-
-                    <option value="C++">
-                        C++
-                    </option>
-
-                    <option value="JavaScript">
-                        JavaScript
-                    </option>
-
-                    <option value="TypeScript">
-                        TypeScript
-                    </option>
-
-                    <option value="HTML">
-                        HTML
-                    </option>
-
-                    <option value="CSS">
-                        CSS
-                    </option>
-
-                    <option value="SQL">
-                        SQL
-                    </option>
-
-                    <option value="C#">
-                        C#
-                    </option>
-
-                    <option value="PHP">
-                        PHP
-                    </option>
-
-                    <option value="Go">
-                        Go
-                    </option>
-
-                    <option value="Rust">
-                        Rust
-                    </option>
-
-                    <option value="Kotlin">
-                        Kotlin
-                    </option>
-
-                    <option value="Swift">
-                        Swift
-                    </option>
-
-                </select>
+                    <p>
+                        Choose a learning tool below.
+                    </p>
+                </div>
 
             </div>
 
 
-            <div class="control-group">
+            <div class="feature-grid">
 
-                <label>
-                    🎯 Difficulty
-                </label>
 
-                <select id="difficulty">
+                <!-- ASK QUESTION -->
 
-                    <option value="Beginner">
-                        Beginner
-                    </option>
+                <button
+                    class="feature-card blue"
+                    onclick="showSection('qa')">
 
-                    <option value="Intermediate">
-                        Intermediate
-                    </option>
+                    <div class="feature-icon">
+                        💬
+                    </div>
 
-                    <option value="Advanced">
-                        Advanced
-                    </option>
+                    <div class="feature-content">
 
-                </select>
+                        <h3>Ask a Question</h3>
+
+                        <p>
+                            Ask any programming question and
+                            get a clear answer with code.
+                        </p>
+
+                        <span class="feature-link">
+                            Ask Now →
+                        </span>
+
+                    </div>
+
+                </button>
+
+
+                <!-- EXPLAIN TOPIC -->
+
+                <button
+                    class="feature-card purple"
+                    onclick="showSection('explain')">
+
+                    <div class="feature-icon">
+                        📚
+                    </div>
+
+                    <div class="feature-content">
+
+                        <h3>Explain a Topic</h3>
+
+                        <p>
+                            Learn programming concepts with
+                            simple explanations and examples.
+                        </p>
+
+                        <span class="feature-link">
+                            Learn Topic →
+                        </span>
+
+                    </div>
+
+                </button>
+
+
+                <!-- QUIZ -->
+
+                <button
+                    class="feature-card pink"
+                    onclick="showSection('quiz')">
+
+                    <div class="feature-icon">
+                        🧠
+                    </div>
+
+                    <div class="feature-content">
+
+                        <h3>Generate Quiz</h3>
+
+                        <p>
+                            Test your programming knowledge
+                            with interactive questions.
+                        </p>
+
+                        <span class="feature-link">
+                            Start Quiz →
+                        </span>
+
+                    </div>
+
+                </button>
+
+
+                <!-- SUMMARY -->
+
+                <button
+                    class="feature-card orange"
+                    onclick="showSection('summary')">
+
+                    <div class="feature-icon">
+                        📝
+                    </div>
+
+                    <div class="feature-content">
+
+                        <h3>Summarize Text</h3>
+
+                        <p>
+                            Convert long programming notes
+                            into short useful summaries.
+                        </p>
+
+                        <span class="feature-link">
+                            Summarize →
+                        </span>
+
+                    </div>
+
+                </button>
+
+
+                <!-- LEARNING -->
+
+                <button
+                    class="feature-card green"
+                    onclick="showSection('learning')">
+
+                    <div class="feature-icon">
+                        🗺️
+                    </div>
+
+                    <div class="feature-content">
+
+                        <h3>Learning Recommendations</h3>
+
+                        <p>
+                            Get a personalized learning path
+                            for your selected language.
+                        </p>
+
+                        <span class="feature-link">
+                            View Roadmap →
+                        </span>
+
+                    </div>
+
+                </button>
 
             </div>
 
         </section>
 
 
-        <!-- Features -->
-        <section class="feature-grid">
+        <!-- ================= ASK QUESTION ================= -->
 
+        <section
+            id="qa"
+            class="tool-section active">
 
-            <!-- Q&A -->
-            <div class="feature-card">
+            <div class="tool-header">
 
-                <div class="feature-icon purple">
+                <div class="tool-icon">
                     💬
                 </div>
 
-                <h3>
-                    Ask a Question
-                </h3>
+                <div>
+                    <h2>Ask a Question</h2>
 
-                <p>
-                    Ask any programming question
-                    and get a clear explanation.
-                </p>
-
-                <textarea
-                    id="question"
-                    placeholder="Example: What is a variable?"
-                ></textarea>
-
-                <button
-                    onclick="askQuestion()"
-                    class="primary-btn"
-                >
-                    Ask Question →
-                </button>
+                    <p>
+                        Ask anything about your selected
+                        programming language.
+                    </p>
+                </div>
 
             </div>
 
 
-            <!-- Explanation -->
-            <div class="feature-card">
+            <textarea
+                id="question"
+                placeholder="Example: What is a variable in Python?">
+            </textarea>
 
-                <div class="feature-icon blue">
+
+            <button
+                class="primary-button"
+                onclick="askQuestion()">
+
+                🚀 Get Answer
+
+            </button>
+
+
+            <div
+                id="qaResult"
+                class="result-box">
+            </div>
+
+        </section>
+
+
+        <!-- ================= EXPLAIN ================= -->
+
+        <section
+            id="explain"
+            class="tool-section">
+
+            <div class="tool-header">
+
+                <div class="tool-icon">
                     📚
                 </div>
 
-                <h3>
-                    Explain a Topic
-                </h3>
+                <div>
+                    <h2>Explain a Topic</h2>
 
-                <p>
-                    Learn programming concepts
-                    step-by-step.
-                </p>
-
-                <input
-                    id="topic"
-                    type="text"
-                    placeholder="Example: Loops"
-                >
-
-                <button
-                    onclick="explainTopic()"
-                    class="secondary-btn"
-                >
-                    Explain Topic →
-                </button>
+                    <p>
+                        Learn a programming concept step by step.
+                    </p>
+                </div>
 
             </div>
 
 
-            <!-- Quiz -->
-            <div class="feature-card">
+            <input
+                id="topic"
+                type="text"
+                placeholder="Example: Functions">
 
-                <div class="feature-icon green">
+
+            <button
+                class="primary-button"
+                onclick="explainTopic()">
+
+                📖 Explain Topic
+
+            </button>
+
+
+            <div
+                id="explainResult"
+                class="result-box">
+            </div>
+
+        </section>
+
+
+        <!-- ================= QUIZ ================= -->
+
+        <section
+            id="quiz"
+            class="tool-section">
+
+            <div class="tool-header">
+
+                <div class="tool-icon">
                     🧠
                 </div>
 
-                <h3>
-                    Practice Quiz
-                </h3>
+                <div>
+                    <h2>Generate Quiz</h2>
 
-                <p>
-                    Test your programming knowledge
-                    with interactive questions.
-                </p>
+                    <p>
+                        Test your knowledge.
+                    </p>
+                </div>
 
-                <button
-                    onclick="generateQuiz()"
-                    class="quiz-btn"
-                >
-                    Generate Quiz →
-                </button>
+            </div>
 
+
+            <input
+                id="quizTopic"
+                type="text"
+                placeholder="Example: Variables">
+
+
+            <button
+                class="primary-button"
+                onclick="generateQuiz()">
+
+                🧠 Generate Quiz
+
+            </button>
+
+
+            <div
+                id="quizResult"
+                class="result-box">
             </div>
 
         </section>
 
 
-        <!-- Result -->
-        <section
-            id="result-section"
-            class="result-section"
-        >
+        <!-- ================= SUMMARY ================= -->
 
-            <div id="result"></div>
+        <section
+            id="summary"
+            class="tool-section">
+
+            <div class="tool-header">
+
+                <div class="tool-icon">
+                    📝
+                </div>
+
+                <div>
+                    <h2>Summarize Text</h2>
+
+                    <p>
+                        Make your programming notes shorter
+                        and easier to understand.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <textarea
+                id="summaryText"
+                placeholder="Paste your programming notes here...">
+            </textarea>
+
+
+            <button
+                class="primary-button"
+                onclick="summarizeText()">
+
+                ✨ Summarize
+
+            </button>
+
+
+            <div
+                id="summaryResult"
+                class="result-box">
+            </div>
 
         </section>
 
 
-        <!-- Answer -->
+        <!-- ================= LEARNING ================= -->
+
         <section
-            id="answer-section"
-            class="answer-section"
-        >
+            id="learning"
+            class="tool-section">
 
-            <div id="answer"></div>
+            <div class="tool-header">
 
-        </section>
+                <div class="tool-icon">
+                    🗺️
+                </div>
+
+                <div>
+                    <h2>Learning Recommendations</h2>
+
+                    <p>
+                        Follow a structured learning path.
+                    </p>
+                </div>
+
+            </div>
 
 
-        <!-- Languages -->
-        <section class="languages-section">
+            <div class="roadmap">
 
-            <h2>
-                🌎 Supported Programming Languages
-            </h2>
+                <div class="roadmap-item">
+                    <span>01</span>
+                    <div>
+                        <h3>Learn the Basics</h3>
+                        <p>
+                            Syntax, variables and data types.
+                        </p>
+                    </div>
+                </div>
 
-            <div class="language-grid">
 
-                <span>🐍 Python</span>
-                <span>☕ Java</span>
-                <span>⚙️ C</span>
-                <span>🚀 C++</span>
-                <span>🌐 JavaScript</span>
-                <span>🔷 TypeScript</span>
-                <span>🧱 HTML</span>
-                <span>🎨 CSS</span>
-                <span>🗄️ SQL</span>
-                <span>💜 C#</span>
-                <span>🐘 PHP</span>
-                <span>🔵 Go</span>
-                <span>🦀 Rust</span>
-                <span>🟣 Kotlin</span>
-                <span>🍎 Swift</span>
+                <div class="roadmap-item">
+                    <span>02</span>
+                    <div>
+                        <h3>Practice Logic</h3>
+                        <p>
+                            Conditions, loops and functions.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="roadmap-item">
+                    <span>03</span>
+                    <div>
+                        <h3>Learn Advanced Concepts</h3>
+                        <p>
+                            OOP, data structures and algorithms.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="roadmap-item">
+                    <span>04</span>
+                    <div>
+                        <h3>Build Projects</h3>
+                        <p>
+                            Create real-world programming projects.
+                        </p>
+                    </div>
+                </div>
 
             </div>
 
@@ -328,20 +618,24 @@
     </main>
 
 
-    <!-- Footer -->
+    <!-- ================= FOOTER ================= -->
+
     <footer>
 
+        <h3>🎓 EduGenie</h3>
+
         <p>
-            © 2026 EduGenie |
-            Learn Smart. Code Better. 🚀
+            Learn • Practice • Build • Grow
         </p>
+
+        <span>
+            © 2026 EduGenie
+        </span>
 
     </footer>
 
 
-    <script
-        src="/static/app.js?v=10"
-    ></script>
+    <script src="/static/app.js"></script>
 
 </body>
 
