@@ -1,195 +1,267 @@
-from pathlib import Path
-
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi import Request
+from pydantic import BaseModel
+from typing import Optional
 
-from explanation_module import explain_topic
-from learning_path import generate_learning_path
-from qna import answer_question
-from quiz_module import generate_quiz
-from schemas import (
-    ExplanationRequest,
-    LearningPathRequest,
-    QuizRequest,
-    SummaryRequest,
-    TextRequest,
-    TextResponse,
-)
-from summary_module import summarize_text
+app = FastAPI(title="EduGenie")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 
-BASE_DIR = Path(__file__).resolve().parent
+LANGUAGES = {
+    "Python": {
+        "extension": ".py",
+        "example": 'print("Hello World")',
+        "description": "Python is a high-level, interpreted programming language known for simple syntax."
+    },
+    "Java": {
+        "extension": ".java",
+        "example": 'System.out.println("Hello World");',
+        "description": "Java is an object-oriented programming language designed for portability."
+    },
+    "C": {
+        "extension": ".c",
+        "example": 'printf("Hello World");',
+        "description": "C is a powerful procedural programming language commonly used for systems programming."
+    },
+    "C++": {
+        "extension": ".cpp",
+        "example": 'cout << "Hello World";',
+        "description": "C++ is a general-purpose language that supports object-oriented and generic programming."
+    },
+    "JavaScript": {
+        "extension": ".js",
+        "example": 'console.log("Hello World");',
+        "description": "JavaScript is widely used for interactive web applications."
+    },
+    "TypeScript": {
+        "extension": ".ts",
+        "example": 'console.log("Hello World");',
+        "description": "TypeScript is a typed superset of JavaScript."
+    },
+    "HTML": {
+        "extension": ".html",
+        "example": '<h1>Hello World</h1>',
+        "description": "HTML is the standard markup language used to structure web pages."
+    },
+    "CSS": {
+        "extension": ".css",
+        "example": 'body { color: blue; }',
+        "description": "CSS is used to style and design web pages."
+    },
+    "SQL": {
+        "extension": ".sql",
+        "example": 'SELECT * FROM students;',
+        "description": "SQL is used to manage and query relational databases."
+    },
+    "C#": {
+        "extension": ".cs",
+        "example": 'Console.WriteLine("Hello World");',
+        "description": "C# is a modern object-oriented language developed for the .NET platform."
+    },
+    "PHP": {
+        "extension": ".php",
+        "example": 'echo "Hello World";',
+        "description": "PHP is a server-side scripting language commonly used for web development."
+    },
+    "Go": {
+        "extension": ".go",
+        "example": 'fmt.Println("Hello World")',
+        "description": "Go is a statically typed language designed for simplicity and efficient software."
+    },
+    "Rust": {
+        "extension": ".rs",
+        "example": 'println!("Hello World");',
+        "description": "Rust focuses on performance, memory safety, and concurrency."
+    },
+    "Kotlin": {
+        "extension": ".kt",
+        "example": 'println("Hello World")',
+        "description": "Kotlin is a modern language widely used for Android development."
+    },
+    "Swift": {
+        "extension": ".swift",
+        "example": 'print("Hello World")',
+        "description": "Swift is a programming language developed by Apple for its platforms."
+    }
+}
 
 
-app = FastAPI(
-    title="EduGenie",
-    description="AI Powered Learning Assistant",
-    version="1.0.0"
-)
+class QuestionRequest(BaseModel):
+    language: str
+    question: str
+    difficulty: str = "Beginner"
 
 
-# ==========================================
-# STATIC FILES
-# ==========================================
-
-app.mount(
-    "/static",
-    StaticFiles(
-        directory=BASE_DIR / "static"
-    ),
-    name="static"
-)
+class ExplanationRequest(BaseModel):
+    language: str
+    topic: str
+    difficulty: str = "Beginner"
 
 
-templates = Jinja2Templates(
-    directory=BASE_DIR / "templates"
-)
+class QuizRequest(BaseModel):
+    language: str
+    topic: str
+    difficulty: str = "Beginner"
 
 
-# ==========================================
-# HOME
-# ==========================================
-
-@app.get(
-    "/",
-    response_class=HTMLResponse
-)
-async def home(
-    request: Request
-):
-
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
     return templates.TemplateResponse(
-        request=request,
-        name="index.html"
+        "index.html",
+        {
+            "request": request,
+            "languages": list(LANGUAGES.keys())
+        }
     )
 
 
-# ==========================================
-# HEALTH
-# ==========================================
-
-@app.get("/health")
-async def health():
-
+@app.get("/languages")
+async def get_languages():
     return {
-        "status": "ok",
-        "application": "EduGenie"
+        "languages": list(LANGUAGES.keys())
     }
 
 
-# ==========================================
-# QUESTION ANSWER
-# ==========================================
+@app.post("/qa")
+async def question_answer(data: QuestionRequest):
 
-@app.post(
-    "/qa",
-    response_model=TextResponse
-)
-async def qa(
-    request: TextRequest
-):
+    language = data.language
+    question = data.question
 
-    result = answer_question(
-        request.text
-    )
+    if language not in LANGUAGES:
+        language = "Python"
 
-    return TextResponse(
-        result=result
-    )
+    info = LANGUAGES[language]
 
+    answer = f"""
+<b>{language}</b> is a programming language.
 
-# ==========================================
-# EXPLAIN
-# ==========================================
+<b>Your Question:</b>
+{question}
 
-@app.post(
-    "/explain",
-    response_model=TextResponse
-)
-async def explain(
-    request: ExplanationRequest
-):
+<b>About {language}:</b>
+{info["description"]}
 
-    result = explain_topic(
-        topic=request.topic,
-        level=request.level
-    )
+<b>Example:</b>
+<pre><code>{info["example"]}</code></pre>
 
-    return TextResponse(
-        result=result
-    )
+<b>Difficulty:</b> {data.difficulty}
+
+<b>Learning Tip:</b>
+Start with variables, data types, conditions, loops, functions,
+and then move to object-oriented programming and projects.
+"""
+
+    return {
+        "success": True,
+        "language": language,
+        "answer": answer
+    }
 
 
-# ==========================================
-# QUIZ
-# ==========================================
+@app.post("/explain")
+async def explain_topic(data: ExplanationRequest):
+
+    language = data.language
+    topic = data.topic
+
+    if language not in LANGUAGES:
+        language = "Python"
+
+    info = LANGUAGES[language]
+
+    explanation = f"""
+<h3>{topic}</h3>
+
+<p>
+<b>{topic}</b> is an important concept when learning
+<b>{language}</b>.
+</p>
+
+<p>
+For <b>{data.difficulty}</b> level learning, understand the concept
+step-by-step and practice it with small programs.
+</p>
+
+<h4>Language Information</h4>
+
+<p>{info["description"]}</p>
+
+<h4>Example</h4>
+
+<pre><code>{info["example"]}</code></pre>
+
+<h4>Practice</h4>
+
+<p>
+Create a small program using <b>{topic}</b>, test it,
+find errors, and improve the program.
+</p>
+"""
+
+    return {
+        "success": True,
+        "language": language,
+        "explanation": explanation
+    }
+
 
 @app.post("/quiz")
-async def quiz(
-    request: QuizRequest
-):
+async def generate_quiz(data: QuizRequest):
 
-    result = generate_quiz(
+    language = data.language
+    topic = data.topic
 
-        topic=request.topic,
+    questions = [
+        {
+            "question": f"What is the main purpose of {topic} in {language}?",
+            "options": [
+                "To solve programming problems",
+                "To shut down the computer",
+                "To remove the operating system",
+                "None of these"
+            ],
+            "answer": 0
+        },
+        {
+            "question": f"Which concept is commonly used while learning {language}?",
+            "options": [
+                "Variables",
+                "Loops",
+                "Functions",
+                "All of the above"
+            ],
+            "answer": 3
+        },
+        {
+            "question": f"Which approach is useful for learning {language}?",
+            "options": [
+                "Only reading",
+                "Only watching videos",
+                "Writing and practicing programs",
+                "Avoiding practice"
+            ],
+            "answer": 2
+        }
+    ]
 
-        number_of_questions=
-            request.number_of_questions,
-
-        level=request.level
-
-    )
-
-    return result
-
-
-# ==========================================
-# SUMMARY
-# ==========================================
-
-@app.post(
-    "/summarize",
-    response_model=TextResponse
-)
-async def summarize(
-    request: SummaryRequest
-):
-
-    result = summarize_text(
-
-        text=request.text,
-
-        number_of_sentences=
-            request.number_of_sentences
-
-    )
-
-    return TextResponse(
-        result=result
-    )
+    return {
+        "success": True,
+        "language": language,
+        "topic": topic,
+        "difficulty": data.difficulty,
+        "questions": questions
+    }
 
 
-# ==========================================
-# LEARNING RECOMMENDATIONS
-# ==========================================
-
-@app.post(
-    "/learn/recommendations"
-)
-async def learning_recommendations(
-    request: LearningPathRequest
-):
-
-    result = generate_learning_path(
-
-        topic=request.topic,
-
-        weeks=request.weeks,
-
-        level=request.level
-
-    )
-
-    return result
+@app.get("/health")
+async def health():
+    return {
+        "status": "ok",
+        "message": "EduGenie is running successfully"
+    }
