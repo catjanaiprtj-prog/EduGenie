@@ -1,29 +1,34 @@
 from fastapi import FastAPI, Request
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from gemini_client import ask_gemini
 
-# =========================================================
-# APP
-# =========================================================
 
 app = FastAPI(
     title="EduGenie",
-    description="Programming Learning Assistant",
-    version="1.0.0"
+    version="2.0"
 )
 
 
 # =========================================================
-# TEMPLATES
+# CORS
 # =========================================================
 
-templates = Jinja2Templates(directory="templates")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # =========================================================
-# STATIC FILES
+# STATIC + TEMPLATES
 # =========================================================
 
 app.mount(
@@ -32,359 +37,55 @@ app.mount(
     name="static"
 )
 
-
-# =========================================================
-# SUPPORTED PROGRAMMING LANGUAGES
-# =========================================================
-
-LANGUAGES = [
-    "Python",
-    "Java",
-    "C",
-    "C++",
-    "JavaScript",
-    "TypeScript",
-    "HTML",
-    "CSS",
-    "SQL",
-    "C#",
-    "PHP",
-    "Go",
-    "Rust",
-    "Kotlin",
-    "Swift"
-]
+templates = Jinja2Templates(
+    directory="templates"
+)
 
 
 # =========================================================
-# LANGUAGE DATA
+# MODELS
 # =========================================================
 
-LANGUAGE_INFO = {
-
-    "Python": {
-        "extension": "python",
-        "description": (
-            "Python is a high-level, interpreted programming "
-            "language known for its simple and readable syntax."
-        ),
-        "code": '''name = "EduGenie"
-
-print("Hello,", name)
-
-age = 20
-print("Age:", age)'''
-    },
-
-    "Java": {
-        "extension": "java",
-        "description": (
-            "Java is an object-oriented programming language "
-            "used for applications, web systems and enterprise software."
-        ),
-        "code": '''public class Main {
-
-    public static void main(String[] args) {
-
-        String name = "EduGenie";
-
-        System.out.println("Hello, " + name);
-    }
-}'''
-    },
-
-    "C": {
-        "extension": "c",
-        "description": (
-            "C is a procedural programming language widely used "
-            "for system programming and embedded systems."
-        ),
-        "code": '''#include <stdio.h>
-
-int main() {
-
-    char name[] = "EduGenie";
-
-    printf("Hello, %s!", name);
-
-    return 0;
-}'''
-    },
-
-    "C++": {
-        "extension": "cpp",
-        "description": (
-            "C++ is a powerful general-purpose programming language "
-            "that supports object-oriented and generic programming."
-        ),
-        "code": '''#include <iostream>
-
-using namespace std;
-
-int main() {
-
-    string name = "EduGenie";
-
-    cout << "Hello, " << name << "!";
-
-    return 0;
-}'''
-    },
-
-    "JavaScript": {
-        "extension": "javascript",
-        "description": (
-            "JavaScript is a programming language commonly used "
-            "to create interactive and dynamic web applications."
-        ),
-        "code": '''const name = "EduGenie";
-
-console.log("Hello, " + name);
-
-let age = 20;
-
-console.log("Age:", age);'''
-    },
-
-    "TypeScript": {
-        "extension": "typescript",
-        "description": (
-            "TypeScript is a typed superset of JavaScript "
-            "that provides static typing."
-        ),
-        "code": '''let name: string = "EduGenie";
-
-let age: number = 20;
-
-console.log("Hello, " + name);
-
-console.log("Age:", age);'''
-    },
-
-    "HTML": {
-        "extension": "html",
-        "description": (
-            "HTML is the standard markup language used "
-            "to create and structure web pages."
-        ),
-        "code": '''<!DOCTYPE html>
-
-<html>
-
-<head>
-
-    <title>EduGenie</title>
-
-</head>
-
-<body>
-
-    <h1>Hello, EduGenie!</h1>
-
-    <p>Welcome to programming.</p>
-
-</body>
-
-</html>'''
-    },
-
-    "CSS": {
-        "extension": "css",
-        "description": (
-            "CSS is used to style HTML pages and control "
-            "layout, colors, fonts and animations."
-        ),
-        "code": '''body {
-
-    background: #111827;
-
-    color: white;
-
-    font-family: Arial, sans-serif;
-
-}
-
-h1 {
-
-    text-align: center;
-
-    font-size: 40px;
-
-}'''
-    },
-
-    "SQL": {
-        "extension": "sql",
-        "description": (
-            "SQL is used to store, retrieve, update and manage "
-            "data in relational databases."
-        ),
-        "code": '''SELECT name, marks
-
-FROM students
-
-WHERE marks >= 50
-
-ORDER BY marks DESC;'''
-    },
-
-    "C#": {
-        "extension": "csharp",
-        "description": (
-            "C# is a modern object-oriented programming language "
-            "developed by Microsoft."
-        ),
-        "code": '''using System;
-
-class Program
-{
-
-    static void Main()
-    {
-
-        string name = "EduGenie";
-
-        Console.WriteLine(
-            "Hello, " + name
-        );
-
-    }
-
-}'''
-    },
-
-    "PHP": {
-        "extension": "php",
-        "description": (
-            "PHP is a server-side scripting language commonly "
-            "used for web development."
-        ),
-        "code": '''<?php
-
-$name = "EduGenie";
-
-echo "Hello, " . $name;
-
-?>'''
-    },
-
-    "Go": {
-        "extension": "go",
-        "description": (
-            "Go is a compiled programming language designed "
-            "for simplicity, concurrency and performance."
-        ),
-        "code": '''package main
-
-import "fmt"
-
-func main() {
-
-    name := "EduGenie"
-
-    fmt.Println("Hello,", name)
-}'''
-    },
-
-    "Rust": {
-        "extension": "rust",
-        "description": (
-            "Rust is a systems programming language focused "
-            "on safety, speed and memory management."
-        ),
-        "code": '''fn main() {
-
-    let name = "EduGenie";
-
-    println!("Hello, {}!", name);
-
-}'''
-    },
-
-    "Kotlin": {
-        "extension": "kotlin",
-        "description": (
-            "Kotlin is a modern programming language commonly "
-            "used for Android and JVM applications."
-        ),
-        "code": '''fun main() {
-
-    val name = "EduGenie"
-
-    println("Hello, $name")
-
-}'''
-    },
-
-    "Swift": {
-        "extension": "swift",
-        "description": (
-            "Swift is Apple's programming language used "
-            "for iOS, macOS and other Apple platforms."
-        ),
-        "code": '''import Foundation
-
-let name = "EduGenie"
-
-print("Hello, \\(name)!")'''
-    }
-}
-
-
-# =========================================================
-# REQUEST MODELS
-# =========================================================
-
-class QARequest(BaseModel):
-    language: str
-    difficulty: str
+class QuestionRequest(BaseModel):
     question: str
+    difficulty: str = "Beginner"
 
 
 class ExplainRequest(BaseModel):
-    language: str
-    difficulty: str
     topic: str
+    difficulty: str = "Beginner"
 
 
 class QuizRequest(BaseModel):
-    language: str
-    difficulty: str
     topic: str
+    difficulty: str = "Beginner"
+    number_of_questions: int = 5
+
+
+class SummaryRequest(BaseModel):
+    text: str
+
+
+class RecommendationRequest(BaseModel):
+    topic: str
+    difficulty: str = "Beginner"
 
 
 # =========================================================
-# HOME PAGE
+# HOME
 # =========================================================
 
 @app.get("/")
 async def home(request: Request):
-
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={
-            "request": request,
-            "languages": LANGUAGES
-        }
+        context={}
     )
 
 
 # =========================================================
-# GET LANGUAGES
-# =========================================================
-
-@app.get("/languages")
-async def get_languages():
-
-    return {
-        "success": True,
-        "languages": LANGUAGES
-    }
-
-
-# =========================================================
-# HEALTH CHECK
+# HEALTH
 # =========================================================
 
 @app.get("/health")
@@ -392,420 +93,281 @@ async def health():
 
     return {
         "success": True,
-        "status": "EduGenie is running successfully"
+        "message": "EduGenie is running"
     }
 
 
 # =========================================================
-# QUESTION & ANSWER
+# ASK QUESTION
 # =========================================================
 
 @app.post("/qa")
-async def question_answer(data: QARequest):
+async def ask_question(data: QuestionRequest):
 
-    language = data.language.strip()
-    difficulty = data.difficulty.strip()
     question = data.question.strip()
 
-    # Empty question
     if not question:
 
-        return {
-            "success": False,
-            "detail": "Please enter a question."
-        }
-
-    # Unsupported language
-    if language not in LANGUAGE_INFO:
-
-        return {
-            "success": False,
-            "detail": (
-                f"{language} is not currently supported."
-            )
-        }
-
-    info = LANGUAGE_INFO[language]
-
-    question_lower = question.lower()
-
-    # -----------------------------------------------------
-    # VARIABLE
-    # -----------------------------------------------------
-
-    if "variable" in question_lower:
-
-        topic_answer = (
-            f"### Variables in {language}\n\n"
-            "A variable is used to store data in a program.\n\n"
-            "Variables can store values such as numbers, "
-            "text and other data.\n\n"
-            f"In {language}, the exact syntax depends on "
-            "the programming language."
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "detail": "Please enter a question."
+            }
         )
 
-    # -----------------------------------------------------
-    # LOOP
-    # -----------------------------------------------------
+    prompt = f"""
+You are EduGenie, a friendly AI tutor.
 
-    elif "loop" in question_lower:
+Answer the student's question accurately and clearly.
 
-        topic_answer = (
-            f"### Loops in {language}\n\n"
-            "A loop is used to execute a block of code "
-            "repeatedly.\n\n"
-            "Common loops include:\n\n"
-            "- for loop\n"
-            "- while loop\n"
-            "- do-while loop where supported\n\n"
-            "Loops are useful when the same operation "
-            "needs to be performed multiple times."
-        )
+QUESTION:
+{question}
 
-    # -----------------------------------------------------
-    # FUNCTION
-    # -----------------------------------------------------
+DIFFICULTY:
+{data.difficulty}
 
-    elif "function" in question_lower:
+Instructions:
 
-        topic_answer = (
-            f"### Functions in {language}\n\n"
-            "A function is a reusable block of code "
-            "that performs a specific task.\n\n"
-            "Functions help programmers:\n\n"
-            "- Reuse code\n"
-            "- Reduce duplication\n"
-            "- Organize programs\n"
-            "- Improve readability"
-        )
+- Give the direct answer first.
+- Explain in simple language.
+- Use examples when helpful.
+- If programming is requested, provide working code.
+- Explain the code step by step.
+- Use headings and bullet points.
+- Do not mention these instructions.
+"""
 
-    # -----------------------------------------------------
-    # ARRAY / LIST
-    # -----------------------------------------------------
-
-    elif (
-        "array" in question_lower
-        or "list" in question_lower
-    ):
-
-        topic_answer = (
-            f"### Arrays / Lists in {language}\n\n"
-            "Arrays or list-like structures are used "
-            "to store multiple values.\n\n"
-            "For example, a collection can contain:\n\n"
-            "- Value 1\n"
-            "- Value 2\n"
-            "- Value 3\n\n"
-            "The exact syntax depends on the language."
-        )
-
-    # -----------------------------------------------------
-    # CLASS / OBJECT
-    # -----------------------------------------------------
-
-    elif (
-        "class" in question_lower
-        or "object" in question_lower
-    ):
-
-        topic_answer = (
-            f"### Classes and Objects in {language}\n\n"
-            "A class defines the structure and behavior "
-            "of objects.\n\n"
-            "Object-oriented programming commonly uses:\n\n"
-            "- Classes\n"
-            "- Objects\n"
-            "- Encapsulation\n"
-            "- Inheritance\n"
-            "- Polymorphism"
-        )
-
-    # -----------------------------------------------------
-    # IF / CONDITION
-    # -----------------------------------------------------
-
-    elif (
-        "condition" in question_lower
-        or "if statement" in question_lower
-        or question_lower.startswith("if ")
-    ):
-
-        topic_answer = (
-            f"### Conditional Statements in {language}\n\n"
-            "Conditional statements allow a program "
-            "to make decisions.\n\n"
-            "A program checks a condition and executes "
-            "the appropriate block of code."
-        )
-
-    # -----------------------------------------------------
-    # GENERAL QUESTION
-    # -----------------------------------------------------
-
-    else:
-
-        topic_answer = (
-            f"### Understanding Your Question\n\n"
-            f"Your question is related to {language} "
-            "programming.\n\n"
-            "To solve the problem:\n\n"
-            "1. Understand the requirement.\n"
-            "2. Identify the input.\n"
-            "3. Identify the expected output.\n"
-            "4. Select the correct syntax.\n"
-            "5. Write the programming logic.\n"
-            "6. Test the program.\n"
-            "7. Check the output."
-        )
-
-    # -----------------------------------------------------
-    # CODE
-    # -----------------------------------------------------
-
-    code_block = (
-        f"```{info['extension']}\n"
-        f"{info['code']}\n"
-        "```"
-    )
-
-    # -----------------------------------------------------
-    # FINAL ANSWER
-    # -----------------------------------------------------
-
-    answer = (
-        "# EduGenie Programming Answer\n\n"
-
-        "## Programming Language\n"
-        f"**{language}**\n\n"
-
-        "## Difficulty\n"
-        f"**{difficulty}**\n\n"
-
-        "## Your Question\n"
-        f"{question}\n\n"
-
-        f"## About {language}\n\n"
-        f"{info['description']}\n\n"
-
-        f"{topic_answer}\n\n"
-
-        "## Example Code\n\n"
-        f"{code_block}\n\n"
-
-        "## Important Points\n\n"
-        f"- Use correct {language} syntax.\n"
-        "- Understand the logic before writing code.\n"
-        "- Use meaningful variable names.\n"
-        "- Test the program with different inputs.\n"
-        "- Check the output carefully.\n\n"
-
-        "## Practice\n\n"
-        f"Try modifying the example and practice {language}."
-    )
+    answer = ask_gemini(prompt)
 
     return {
         "success": True,
-        "answer": answer,
-        "language": language,
-        "difficulty": difficulty,
-        "question": question
+        "answer": answer
     }
 
 
 # =========================================================
-# TOPIC EXPLANATION
+# EXPLAIN TOPIC
 # =========================================================
 
 @app.post("/explain")
 async def explain_topic(data: ExplainRequest):
 
-    language = data.language.strip()
-    difficulty = data.difficulty.strip()
     topic = data.topic.strip()
 
     if not topic:
 
-        return {
-            "success": False,
-            "detail": "Please enter a topic."
-        }
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "detail": "Please enter a topic."
+            }
+        )
 
-    if language not in LANGUAGE_INFO:
+    prompt = f"""
+You are an expert teacher.
 
-        return {
-            "success": False,
-            "detail": (
-                f"{language} is not currently supported."
-            )
-        }
+Explain this topic to a student:
 
-    info = LANGUAGE_INFO[language]
+TOPIC:
+{topic}
 
-    explanation = (
-        "# Topic Explanation\n\n"
+DIFFICULTY:
+{data.difficulty}
 
-        "## Topic\n"
-        f"**{topic}**\n\n"
+Use this structure:
 
-        "## Programming Language\n"
-        f"**{language}**\n\n"
+1. What is it?
+2. Why is it important?
+3. How does it work?
+4. Simple example
+5. Programming example if applicable
+6. Common mistakes
+7. Quick summary
 
-        "## Difficulty\n"
-        f"**{difficulty}**\n\n"
+Make the explanation easy to understand.
+"""
 
-        "## Simple Explanation\n\n"
-        f"{topic} is an important programming concept "
-        f"that can be learned using {language}.\n\n"
-
-        "## How to Learn It\n\n"
-        "1. Understand the definition.\n"
-        "2. Learn the syntax.\n"
-        "3. Study a simple example.\n"
-        "4. Write your own program.\n"
-        "5. Test different inputs.\n"
-        "6. Debug errors.\n\n"
-
-        f"## {language} Example\n\n"
-        f"```{info['extension']}\n"
-        f"{info['code']}\n"
-        "```\n\n"
-
-        "## Practice Task\n\n"
-        f"Create a small {language} program using "
-        f"**{topic}**."
-    )
+    answer = ask_gemini(prompt)
 
     return {
         "success": True,
-        "answer": explanation,
-        "topic": topic,
-        "language": language,
-        "difficulty": difficulty
+        "answer": answer
     }
 
 
 # =========================================================
-# QUIZ GENERATOR
+# QUIZ
 # =========================================================
 
 @app.post("/quiz")
 async def generate_quiz(data: QuizRequest):
 
-    language = data.language.strip()
-    difficulty = data.difficulty.strip()
     topic = data.topic.strip()
 
     if not topic:
 
-        return {
-            "success": False,
-            "detail": "Please enter a topic."
-        }
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "detail": "Please enter a quiz topic."
+            }
+        )
 
-    if language not in LANGUAGE_INFO:
+    count = max(
+        1,
+        min(data.number_of_questions, 10)
+    )
 
-        return {
-            "success": False,
-            "detail": (
-                f"{language} is not currently supported."
-            )
-        }
+    prompt = f"""
+Create a student-friendly multiple-choice quiz.
 
-    questions = [
+TOPIC:
+{topic}
 
-        {
-            "question": (
-                f"What is {topic} in {language}?"
-            ),
-            "options": [
-                f"A programming concept used in {language}",
-                "A computer virus",
-                "A hardware component",
-                "An operating system"
-            ],
-            "answer": 0
-        },
+DIFFICULTY:
+{data.difficulty}
 
-        {
-            "question": (
-                "Which programming language is selected?"
-            ),
-            "options": [
-                language,
-                "HTML",
-                "CSS",
-                "SQL"
-            ],
-            "answer": 0
-        },
+NUMBER OF QUESTIONS:
+{count}
 
-        {
-            "question": (
-                f"What should you do first when learning {topic}?"
-            ),
-            "options": [
-                "Understand the concept",
-                "Delete the program",
-                "Turn off the computer",
-                "Skip the syntax"
-            ],
-            "answer": 0
-        },
+For each question use:
 
-        {
-            "question": (
-                f"Why should you practice {topic}?"
-            ),
-            "options": [
-                "To improve programming skills",
-                "To damage the computer",
-                "To remove source code",
-                "None of these"
-            ],
-            "answer": 0
-        },
+Question
 
-        {
-            "question": (
-                f"What is important when writing {language} programs?"
-            ),
-            "options": [
-                "Correct syntax and logic",
-                "Only colors",
-                "Only images",
-                "None"
-            ],
-            "answer": 0
-        }
+A. Option
+B. Option
+C. Option
+D. Option
 
-    ]
+Correct Answer:
+Explanation:
+
+Make sure each question has only one correct answer.
+"""
+
+    answer = ask_gemini(prompt)
 
     return {
         "success": True,
-        "language": language,
-        "difficulty": difficulty,
-        "topic": topic,
-        "questions": questions
+        "answer": answer
     }
 
 
 # =========================================================
-# API INFORMATION
+# SUMMARIZE
 # =========================================================
 
-@app.get("/api/info")
-async def api_info():
+@app.post("/summarize")
+async def summarize_text(data: SummaryRequest):
+
+    text = data.text.strip()
+
+    if not text:
+
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "detail": "Please enter some text."
+            }
+        )
+
+    prompt = f"""
+You are a study assistant.
+
+Summarize this text:
+
+{text}
+
+Return:
+
+📌 Short Summary
+📚 Main Concepts
+⭐ Important Points
+🔑 Key Terms
+💡 Final Takeaway
+
+Keep the original meaning accurate.
+"""
+
+    answer = ask_gemini(prompt)
 
     return {
         "success": True,
-        "project": "EduGenie",
-        "version": "1.0.0",
-        "languages": LANGUAGES,
-        "features": [
-            "Question and Answer",
-            "Topic Explanation",
-            "Quiz Generator",
-            "Difficulty Selection",
-            "Multiple Programming Languages"
-        ]
+        "answer": answer
     }
+
+
+# =========================================================
+# LEARNING RECOMMENDATIONS
+# =========================================================
+
+@app.post("/recommendations")
+async def recommendations(
+    data: RecommendationRequest
+):
+
+    topic = data.topic.strip()
+
+    if not topic:
+
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "detail": "Please enter a learning topic."
+            }
+        )
+
+    prompt = f"""
+You are a personal learning mentor.
+
+Create a learning roadmap for:
+
+TOPIC:
+{topic}
+
+LEVEL:
+{data.difficulty}
+
+Include:
+
+1. Prerequisites
+2. Beginner Topics
+3. Intermediate Topics
+4. Advanced Topics
+5. Practice Exercises
+6. Mini Projects
+7. Final Project
+8. Suggested Learning Order
+
+Make it practical and student-friendly.
+"""
+
+    answer = ask_gemini(prompt)
+
+    return {
+        "success": True,
+        "answer": answer
+    }
+
+
+# =========================================================
+# SAFE ERROR HANDLER
+# =========================================================
+
+@app.exception_handler(Exception)
+async def server_error(request: Request, exc: Exception):
+
+    print("SERVER ERROR:", exc)
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "detail": "EduGenie is temporarily unavailable. Please try again."
+        }
+    )
