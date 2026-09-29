@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 🧠 EduGenie
 EduGenie is an AI-powered personal learning assistant.
 
@@ -19,3 +20,6 @@ Installation
 Create virtual environment:
 
 python -m venv .venv
+=======
+# Edugenie
+>>>>>>> 5e3adcfd586beb9038fadb196b39736acca5114d
